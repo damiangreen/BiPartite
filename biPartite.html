@@ -6,7 +6,7 @@
         margin: 100px auto;
         font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
     }
-</style><link rel="stylesheet" type="text/css" href="bipartite.css">
+</style><link rel="stylesheet" type="text/css" href="bipartite.min.css">
 <body>
 
     <script src="http://d3js.org/d3.v3.min.js"></script>
@@ -136,14 +136,11 @@
             headerX: 375,
             headerY: -20,
             transitionWidth: 60,
-            height: 600,
             sortbyKey: false,
-            barlabelFontSize: "12",
-            barValueFontSize: "10",
-            barPercentFontSize: "10",
             width : 1100,
             height : 610,
-            margin : { b: 0, t: 40, l: 170, r: 50 }
+            margin: { b: 0, t: 40, l: 170, r: 50 },
+            rectangleWidth: 80
         });
         bP.draw(data,'body');
 
