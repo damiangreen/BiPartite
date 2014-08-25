@@ -124,7 +124,7 @@
      
         var data = [
             { data: bP.partData(lead_data, 2), id: 'leads', header: ["Channel", "State", "Leads"] },
-            { data: bP.partData(lead_data, 3), id: 'binds', header: ["Channel", "State", "Binds"] }
+         //   { data: bP.partData(lead_data, 3), id: 'binds', header: ["Channel", "State", "Binds"] }
         ];
 
         bP.setOptions({
@@ -139,7 +139,12 @@
             sortbyKey: false,
             width : 1100,
             height : 610,
-            margin: { b: 0, t: 40, l: 170, r: 50 },
+            margin: {
+                b: 0,
+                t: 40,
+                l: 170,
+                r: 50
+            },
             rectangleWidth: 80
         });
         bP.draw(data,'body');

@@ -1,3 +1,4 @@
+///<reference path="http://d3js.org/d3.v3.min.js"/>
 -function () {
     var bP = {};
     var buffMargin = 1, minHeight = 14;
@@ -136,7 +137,7 @@
 
     function drawPart(data, id, p) {
 
-        d3.select('#' + id).append('g').attr('class', 'part' + p).attr('transform', 'translate(' + (p * (me.options.transitionWidth + this.options.rectangleWidth)) + ',0)');
+        d3.select('#' + id).append('g').attr('class', 'part' + p).attr('transform', 'translate(' + (p * (me.options.transitionWidth + me.options.rectangleWidth)) + ',0)');
         var el = d3.select('#' + id).select('.part' + p);
         el.append('g').attr('class', 'subbars');
         el.append('g').attr('class', 'mainbars');
@@ -147,8 +148,8 @@
         mainbar.append('rect').attr('class', 'mainrect')
             // .attr('rx', 15)
             //.attr('ry', 15)
-			.attr('x', 0).attr('y', function (d) { return d.middle - d.height / 2; })
-			.attr('width', this.options.rectangleWidth).attr('height', function (d) { return d.height; })
+            .attr('x', 0).attr('y', function(d) { return d.middle - d.height / 2; })
+            .attr('width', me.options.rectangleWidth).attr('height', function (d) { return d.height; });
 
         //draw bar label
         mainbar.append('text').attr('class', 'barlabel')
@@ -165,7 +166,7 @@
         //draw percentage label
         mainbar.append('text').attr('class', 'barpercent')
 			.attr('x', me.options.barpercentColumn[p]).attr('y', function (d) { return d.middle + 5; })
-			.text(function (d, i) { return '( ' + Math.round(100 * d.percent) + '%)'; })
+			.text(function (d, i) { return '(' + Math.round(100 * d.percent) + '%)'; })
 			.attr('text-anchor', 'end');
 
         //draws the rectangle
@@ -174,18 +175,24 @@
 			.append('rect').attr('class', 'subbar')
             //.attr('rx', 15)
             //.attr('ry', 15)
-			.attr('x', 0).attr('y', function (d) { return d.y; }).attr('width', this.options.rectangleWidth).attr('height', function (d) { return d.h; })
-			.style('fill', function (d) { return me.options.colors[d.key1]; });
+			.attr('x', 0).attr('y', function (d) { return d.y; }).attr('width', me.options.rectangleWidth).attr('height', function (d) { return d.h; })
+			.style('fill', function(d) {
+			    var n = 1;
+            if (d === null || d.key1 == null)alert('sadfsdf');
+			    return me.options.colors[d.key1];
+        });
     }
 
+    // draws the interconnecting lines between the left and right rectangles
     function drawEdges(data, id) {
-        d3.select('#' + id).append('g').attr('class', 'edges').attr('transform', 'translate(' + this.options.rectangleWidth + ',0)');
+        d3.select('#' + id).append('g').attr('class', 'edges').attr('transform', 'translate(' + me.options.rectangleWidth + ',0)');
 
         d3.select('#' + id).select('.edges').selectAll('.edge').data(data.edges).enter().append('polygon').attr('class', 'edge')
 			.attr('points', edgePolygon).style('fill', function (d) { return me.options.colors[d.key1]; }).style('opacity', 0.5)
 			.each(function (d) { this._current = d; });
     }
 
+    // draws the headers on both sides with text
     function drawHeader(header, id) {
         d3.select('#' + id).append('g').attr('class', 'header').append('text').text(header[2])
 			.attr('x', me.options.headerX).attr('y', me.options.headerY);
@@ -197,7 +204,7 @@
             h.append('text').text('Count').attr('x', (me.options.valueColumn[d] - 10)).attr('y', -5);
 
             h.append('line').attr('x1', me.options.labelColumn[d] - 10).attr('y1', -2).attr('x2', me.options.barpercentColumn[d] + 10).attr('y2', -2)
-				.style('stroke', 'black').style('stroke-width', '1').style('shape-rendering', 'crispEdges');
+                .attr('class', 'header-underscore');
         });
     }
 
@@ -215,7 +222,7 @@
         mainbar.select('.barvalue').transition().duration(500).attr('y', function (d) { return d.middle + 5; }).text(function (d, i) { return d.value; });
         mainbar.select('.barpercent').transition().duration(500)
 			.attr('y', function (d) { return d.middle + 5; })
-			.text(function (d, i) { return '( ' + Math.round(100 * d.percent) + '%)'; });
+			.text(function (d, i) { return '(' + Math.round(100 * d.percent) + '%)'; });
 
         d3.select('#' + id).select('.part' + p).select('.subbars').selectAll('.subbar').data(data.subBars[p])
 			.transition().duration(500)
@@ -223,7 +230,7 @@
     }
 
     function transitionEdges(data, id) {
-        d3.select('#' + id).append('g').attr('class', 'edges').attr('transform', 'translate(' + this.options.rectangleWidth + ',0)');
+        d3.select('#' + id).append('g').attr('class', 'edges').attr('transform', 'translate(' + me.rectangleWidth + ',0)');
 
         d3.select('#' + id).select('.edges').selectAll('.edge').data(data.edges)
 			.transition().duration(500)
@@ -249,7 +256,7 @@
             svg.append('g')
 				.attr('id', biP.id)
 				.attr('transform', 'translate(' + (550 * s) + ',0)');
-
+            debugger;
             var visData = visualize(biP.data);
             drawPart(visData, biP.id, 0);
             drawPart(visData, biP.id, 1);
