@@ -1,49 +1,56 @@
-﻿svg text {
-    font-size: 12px;
-}
+﻿.bipartite {
+     text {
+       font-size: 12px;
+    }
 
-rect {
-    shape-rendering: crispEdges;
-}
+    rect {
+        shape-rendering: crispEdges;
+    }
 
-.mainrect {
-    fill-opacity: 0;
+    .subbar {
+        fill: pink;
+    }
+
+    .mainrect {
+        /*fill-opacity: 0;
     stroke-width: 0.5;
     stroke: black;
     stroke-opacity: 0;
-    shape-rendering: auto;
-}
-
-.mainrect.selected {
-    stroke-opacity: 1;
-}
-
-.barlabel, .barvalue, .barpercent {
-    font-weight: normal;
-}
-
-.barpercent {
-    fill: grey;
-}
-
-.barlabel.selected,
-.barvalue.selected,
-.barpercent.selected {
-    font-weight: bold;
-}
-
-.header {
-    font-size: 15px;
-    text-anchor: middle;
-    font-weight: bold;
-
-    .header-underscore {
-        stroke: black;
-        stroke-width: 1;
-        shape-rendering: crispEdges;
+    shape-rendering: auto;*/
+        fill: gainsboro;
     }
-}
 
-.header text {
-    fill: grey;
+    .mainrect.selected {
+        stroke-opacity: 1;
+    }
+
+    .barlabel, .barvalue, .barpercent {
+        font-weight: normal;
+    }
+
+    .barpercent {
+        fill: grey;
+    }
+
+    .barlabel.selected,
+    .barvalue.selected,
+    .barpercent.selected {
+        font-weight: bold;
+    }
+
+    .header {
+      
+        text-anchor: middle;
+        font-weight: bold;
+
+        .header-underscore {
+            stroke: black;
+            stroke-width: 1;
+            shape-rendering: crispEdges;
+        }
+    }
+
+    .header text {
+        fill: grey;
+    }
 }

@@ -124,20 +124,20 @@
      
         var data = [
             {
-                data: bP.partData(lead_data, 2),
+                data: biPartiteChart.partData(lead_data, 2),
                 id: 'leads',
                 header: ["Channel", "State", "Leads"]
-            },
+            }
          //   { data: bP.partData(lead_data, 3), id: 'binds', header: ["Channel", "State", "Binds"] }
         ];
 
-        bP.setOptions({
-            colors: ["#3366CC", "#DC3912", "#FF9900", "#109618", "#990099", "#0099C6"],
-            // colors: ["#97C00E", "FFCC00", "#FF6464"],
-            labelColumn: [-130, 90],
-            valueColumn: [-50, 170], //(count (%)) first value is left position x, second value is right position x
-            barpercentColumn: [-10, 220], //Column positions of labels.
-            headerPosition: [375,-20],
+        biPartiteChart.setOptions({
+            header: {
+                labelPosition: [-130, 90],
+                valuePosition: [-50, 170], //(count (%)) first value is left position x, second value is right position x
+                barpercentColumn: [-10, 220], //Column positions of labels.
+                position: [375,-20],
+            },
             transitionWidth: 60,
             sortbyKey: false,
             width : 1100,
@@ -150,7 +150,7 @@
             },
             rectangleWidth: 80
         });
-        bP.draw(data,'body');
+        biPartiteChart.draw(data, 'body');
 
     </script>
 </body>

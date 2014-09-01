@@ -1,10 +1,10 @@
 ///<reference path="http://d3js.org/d3.v3.min.js"/>
 -function () {
-    var bP = {};
+    var biPartiteChart = {};
 
     var me = this;
     this.options = {
-        colors: ['#3366CC', '#DC3912', '#FF9900', '#109618', '#990099', '#0099C6'],
+        colors: ['#ef5464', '#f36d54', '#6798d0', '#ffcf56', '#5bc2a7', '#ea88b9', '#e7eaef'],
         header: {
             position: [108, -20],
             labelPosition: [-130, 40], //Column positions of labels.
@@ -15,17 +15,24 @@
         width: 1100,
         height: 610,
         sortbyKey: false,
-        margin: { b: 0, t: 40, l: 170, r: 50 },
+        margin: {
+            b: 0,
+            t: 40,
+            l: 170,
+            r: 50
+        },
         rectangleWidth: 80,
         minHeight: 14,
-        buffMargin:0
+        rectangleMargin: 2,
+        transitionOpacity: 0.5,
+        duration:500
     };
 
     /**
      *  sets Options
      * @param {object} options an object containing options
      */
-    bP.setOptions = function (options) {
+    biPartiteChart.setOptions = function (options) {
         if (options === null || typeof options !== "object") {
             throw "options is not an object";
         }
@@ -67,8 +74,14 @@
         if (typeof options.minHeight === "number") {
             me.options.minHeight = options.minHeight;
         }
-        if (typeof options.buffMargin === "number") {
-            me.options.buffMargin = options.buffMargin;
+        if (typeof options.rectangleMargin === "number") {
+            me.options.rectangleMargin = options.rectangleMargin;
+        }
+        if (typeof options.transitionOpacity === "number") {
+            me.options.transitionOpacity = options.transitionOpacity;
+        }
+        if (typeof options.duration === "number") {
+            me.options.duration = options.duration;
         }
     };
 
@@ -77,22 +90,22 @@
    * @public
    * From t he original data set, creates two opposing arrays containing the counts of each corresponding record on each side.
    */
-    bP.partData = function (data, p) {
+    biPartiteChart.partData = function (data, p) {
         var sData = {};
 
         // gets unique columns names (first element in array) - In Bipartite Parlance this is the U-Set
-        var v1 = d3.set(data.map(function (d) { return d[0]; })).values();
+        var columnNamesLeft = d3.set(data.map(function (d) { return d[0]; })).values();
 
         if (me.options.sortbyKey) {
-            v1 = v1.sort();
+            columnNamesLeft = columnNamesLeft.sort();
         }
         // gets unique destination column name (second element in array) - In Bipartite Parlance this is the V-Set
-        var v2 = d3.set(data.map(function (d) { return d[1]; })).values();
+        var columnNamesRight = d3.set(data.map(function (d) { return d[1]; })).values();
 
         if (me.options.sortbyKey) {
-            v2 = v2.sort(d3.descending());
+            columnNamesRight = columnNamesRight.sort(d3.descending());
         }
-        sData.keys = [v1, v2];
+        sData.keys = [columnNamesLeft, columnNamesRight];
 
         // creates an array of arrays with all values set to 0
         sData.data = [sData.keys[0].map(function () { return sData.keys[1].map(function () { return 0; }); }),
@@ -127,8 +140,7 @@
 				    ret.push(v);
 				}
 			);
-
-            var scaleFact = leftoverHeight / Math.max(neededHeight, 1), sum = 0;
+            var scaleFact = leftoverHeight / Math.max(neededHeight, 1);
 
             ret.forEach(
 				function (d) {
@@ -144,8 +156,8 @@
             return ret;
         }
 
-        vis.mainBars = [calculatePosition(data.data[0].map(function (d) { return d3.sum(d); }), 0, me.options.height, me.options.buffMargin, me.options.minHeight),
-						 calculatePosition(data.data[1].map(function (d) { return d3.sum(d); }), 0, me.options.height, me.options.buffMargin, me.options.minHeight)];
+        vis.mainBars = [calculatePosition(data.data[0].map(function (d) { return d3.sum(d); }), 0, me.options.height, me.options.rectangleMargin, me.options.minHeight),
+						 calculatePosition(data.data[1].map(function (d) { return d3.sum(d); }), 0, me.options.height, me.options.rectangleMargin, me.options.minHeight)];
 
         vis.subBars = [[], []];
         vis.mainBars.forEach(function (pos, p) {
@@ -185,10 +197,13 @@
 
     function drawPart(data, id, p) {
 
-        d3.select('#' + id).append('g').attr('class', 'part' + p).attr('transform', 'translate(' + (p * (me.options.transitionWidth + me.options.rectangleWidth)) + ',0)');
+        d3.select('#' + id).append('g')
+                            .attr('class', 'part' + p)
+                            .attr('transform', 'translate(' + (p * (me.options.transitionWidth + me.options.rectangleWidth)) + ',0)');
         var el = d3.select('#' + id).select('.part' + p);
-        el.append('g').attr('class', 'subbars');
         el.append('g').attr('class', 'mainbars');
+        el.append('g').attr('class', 'subbars');
+  
 
         var mainbar = d3.select('#' + id).select('.part' + p).select('.mainbars').selectAll('.mainbar').data(data.mainBars[p])
 			.enter().append('g').attr('class', 'mainbar');
@@ -201,34 +216,38 @@
 
         //draw bar label
         mainbar.append('text').attr('class', 'barlabel')
-			.attr('x', me.options.header.labelPosition[p]).attr('y', function (d) { return d.middle + 5; })
-			.text(function (d, i) { return data.keys[p][i]; })
-			.attr('text-anchor', 'start');
+			                  .attr('x', me.options.header.labelPosition[p]).attr('y', function (d) { return d.middle + 5; })
+			                  .text(function (d, i) { return data.keys[p][i]; })
+			                  .attr('text-anchor', 'start');
 
         //draw count label
         mainbar.append('text').attr('class', 'barvalue')
-			.attr('x', me.options.header.valuePosition[p]).attr('y', function (d) { return d.middle + 5; })
-			.text(function (d, i) { return d.value; })
-			.attr('text-anchor', 'end');
+			                  .attr('x', me.options.header.valuePosition[p]).attr('y', function (d) { return d.middle + 5; })
+			                  .text(function (d) { return d.value; })
+			                  .attr('text-anchor', 'end');
 
         //draw percentage label
         mainbar.append('text').attr('class', 'barpercent')
-			.attr('x', me.options.header.barpercentColumn[p]).attr('y', function (d) { return d.middle + 5; })
-			.text(function (d, i) { return '(' + Math.round(100 * d.percent) + '%)'; })
-			.attr('text-anchor', 'end');
+			                  .attr('x', me.options.header.barpercentColumn[p]).attr('y', function (d) { return d.middle + 5; })
+			                  .text(function (d) { return '(' + Math.round(100 * d.percent) + '%)'; })
+			                  .attr('text-anchor', 'end');
 
         //draws the rectangle
-        d3.select('#' + id).select('.part' + p).select('.subbars')
+        d3.select('#' + id)
+            .select('.part' + p)
+            .select('.subbars')
 			.selectAll('.subbar').data(data.subBars[p]).enter()
 			.append('rect').attr('class', 'subbar')
-            //.attr('rx', 15)
-            //.attr('ry', 15)
-			.attr('x', 0).attr('y', function (d) { return d.y; }).attr('width', me.options.rectangleWidth).attr('height', function (d) { return d.h; })
-			.style('fill', function (d) {
-			    var n = 1;
-			    if (d === null || d.key1 == null) alert('sadfsdf');
-			    return me.options.colors[d.key1];
-			});
+			                .attr('x', 0)
+                            .attr('y', function (d) { return d.y; })
+                            .attr('width', me.options.rectangleWidth)
+                            .attr('height', function (d) { return d.h; })
+			                .style('fill', function (d) {
+			                    var n = 1;
+                           // console.log(d.key1);
+			                    if (d === null || d.key1 == null || d.key1>5) alert('sadfsdf');
+			                    return me.options.colors[d.key1];
+			                });
     }
 
     // draws the interconnecting lines between the left and right rectangles
@@ -236,7 +255,10 @@
         d3.select('#' + id).append('g').attr('class', 'edges').attr('transform', 'translate(' + me.options.rectangleWidth + ',0)');
 
         d3.select('#' + id).select('.edges').selectAll('.edge').data(data.edges).enter().append('polygon').attr('class', 'edge')
-			.attr('points', edgePolygon).style('fill', function (d) { return me.options.colors[d.key1]; }).style('opacity', 0.5)
+			.attr('points', edgePolygon).style('fill', function (d) {
+			    console.log(d.key1);
+                 return me.options.colors[d.key1];
+            }).style('opacity',me.options.transitionOpacity)
 			.each(function (d) { this._current = d; });
     }
 
@@ -263,17 +285,17 @@
     function transitionPart(data, id, p) {
         var mainbar = d3.select('#' + id).select('.part' + p).select('.mainbars').selectAll('.mainbar').data(data.mainBars[p]);
 
-        mainbar.select('.mainrect').transition().duration(500)
+        mainbar.select('.mainrect').transition().duration(me.options.duration)
 			.attr('y', function (d) { return d.middle - d.height / 2; }).attr('height', function (d) { return d.height; });
 
-        mainbar.select('.barlabel').transition().duration(500).attr('y', function (d) { return d.middle + 5; });
-        mainbar.select('.barvalue').transition().duration(500).attr('y', function (d) { return d.middle + 5; }).text(function (d, i) { return d.value; });
-        mainbar.select('.barpercent').transition().duration(500)
+        mainbar.select('.barlabel').transition().duration(me.options.duration).attr('y', function (d) { return d.middle + 5; });
+        mainbar.select('.barvalue').transition().duration(me.options.duration).attr('y', function (d) { return d.middle + 5; }).text(function (d, i) { return d.value; });
+        mainbar.select('.barpercent').transition().duration(me.options.duration)
 			.attr('y', function (d) { return d.middle + 5; })
 			.text(function (d, i) { return '(' + Math.round(100 * d.percent) + '%)'; });
 
         d3.select('#' + id).select('.part' + p).select('.subbars').selectAll('.subbar').data(data.subBars[p])
-			.transition().duration(500)
+			.transition().duration(me.options.duration)
 			.attr('y', function (d) { return d.y; }).attr('height', function (d) { return d.h; });
     }
 
@@ -281,7 +303,7 @@
         d3.select('#' + id).append('g').attr('class', 'edges').attr('transform', 'translate(' + me.options.rectangleWidth + ',0)');
 
         d3.select('#' + id).select('.edges').selectAll('.edge').data(data.edges)
-			.transition().duration(500)
+			.transition().duration(me.options.duration)
 			.attrTween('points', arcTween).style('opacity', function (d) { return (d.h1 == 0 || d.h2 == 0 ? 0 : 0.5); });
     }
 
@@ -291,10 +313,11 @@
         transitionEdges(data, id);
     }
 
-    bP.draw = function (data, containerEl) {
+    biPartiteChart.draw = function (data, containerEl) {
         // creates root  svg element
         var svg = d3.select(containerEl)
            .append('svg')
+              .attr('class', 'bipartite')
            .attr('width', me.options.width)
            .attr('height', (me.options.height + me.options.margin.b + me.options.margin.t))
            .append('g')
@@ -316,13 +339,13 @@
 					.select('.part' + p)
 					.select('.mainbars')
 					.selectAll('.mainbar')
-					.on('mouseover', function (d, i) { return bP.selectSegment(data, p, i); })
-					.on('mouseout', function (d, i) { return bP.deSelectSegment(data, p, i); });
+					.on('mouseover', function (d, i) { return biPartiteChart.selectSegment(data, p, i); })
+					.on('mouseout', function (d, i) { return biPartiteChart.deSelectSegment(data, p, i); });
             });
         });
     };
 
-    bP.selectSegment = function (data, m, s) {
+    biPartiteChart.selectSegment = function (data, m, s) {
         data.forEach(function (k) {
             var newdata = { keys: [], data: [] };
 
@@ -338,12 +361,12 @@
         });
     };
 
-    bP.deSelectSegment = function (data, m, s) {
+    biPartiteChart.deSelectSegment = function (data, m, s) {
         data.forEach(function (k) {
             transition(visualize(k.data), k.id);
             var selectedBar = d3.select('#' + k.id).select('.part' + m).select('.mainbars').selectAll('.mainbar').filter(function (d, i) { return (i == s); });
             selectedBar.selectAll('.mainrect, .barlabel, .barvalue, .barpercent').classed('selected', false);
         });
     };
-    this.bP = bP;
+    this.biPartiteChart = biPartiteChart;
 }();
