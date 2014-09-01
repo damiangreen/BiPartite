@@ -1,21 +1,24 @@
 ///<reference path="http://d3js.org/d3.v3.min.js"/>
 -function () {
     var bP = {};
-    var buffMargin = 1, minHeight = 14;
 
     var me = this;
     this.options = {
         colors: ['#3366CC', '#DC3912', '#FF9900', '#109618', '#990099', '#0099C6'],
-        labelColumn: [-130, 40], //Column positions of labels.
-        valueColumn: [-50, 100],
-        barpercentColumn: [-10, 160],// x distance from left of main rect
-        headerPosition: [108, -20],
+        header: {
+            position: [108, -20],
+            labelPosition: [-130, 40], //Column positions of labels.
+            valuePosition: [-50, 100],
+            barpercentColumn: [-10, 160],// x distance from left of main rect
+        },
         transitionWidth: 250,
         width: 1100,
         height: 610,
         sortbyKey: false,
         margin: { b: 0, t: 40, l: 170, r: 50 },
-        rectangleWidth: 80
+        rectangleWidth: 80,
+        minHeight: 14,
+        buffMargin:0
     };
 
     /**
@@ -29,19 +32,21 @@
         if (options.colors instanceof Array) {
             me.options.colors = options.colors;
         }
-        if (options.labelColumn instanceof Array) {
-            me.options.labelColumn = options.labelColumn;
+
+        if (options.header.labelPosition instanceof Array) {
+            me.options.header.labelPosition = options.header.labelPosition;
         }
-        if (options.valueColumn instanceof Array) {
-            me.options.valueColumn = options.valueColumn;
+        if (options.header.valuePosition instanceof Array) {
+            me.options.header.valuePosition = options.header.valuePosition;
         }
-        if (options.barpercentColumn instanceof Array) {
-            me.options.barpercentColumn = options.barpercentColumn;
+        if (options.header.barpercentColumn instanceof Array) {
+            me.options.header.barpercentColumn = options.header.barpercentColumn;
         }
-        if (options.headerPosition instanceof Array) {
-            me.options.headerPosition = options.headerPosition;
+        if (options.header.position instanceof Array) {
+            me.options.header.position = options.header.position;
         }
-        if (typeof options.transitionWidth ==="number" ) {
+
+        if (typeof options.transitionWidth === "number") {
             me.options.transitionWidth = options.transitionWidth;
         }
         if (typeof options.width === "number") {
@@ -58,6 +63,12 @@
         }
         if (typeof options.rectangleWidth === "number") {
             me.options.rectangleWidth = options.rectangleWidth;
+        }
+        if (typeof options.minHeight === "number") {
+            me.options.minHeight = options.minHeight;
+        }
+        if (typeof options.buffMargin === "number") {
+            me.options.buffMargin = options.buffMargin;
         }
     };
 
@@ -98,9 +109,12 @@
 
     function visualize(data) {
         var vis = {};
+
         function calculatePosition(a, s, e, b, m) {
             var total = d3.sum(a);
-            var sum = 0, neededHeight = 0, leftoverHeight = e - s - 2 * b * a.length;
+            var sum = 0,
+                neededHeight = 0,
+                leftoverHeight = e - s - 2 * b * a.length;
             var ret = [];
 
             a.forEach(
@@ -130,8 +144,8 @@
             return ret;
         }
 
-        vis.mainBars = [calculatePosition(data.data[0].map(function (d) { return d3.sum(d); }), 0, me.options.height, buffMargin, minHeight),
-						 calculatePosition(data.data[1].map(function (d) { return d3.sum(d); }), 0, me.options.height, buffMargin, minHeight)];
+        vis.mainBars = [calculatePosition(data.data[0].map(function (d) { return d3.sum(d); }), 0, me.options.height, me.options.buffMargin, me.options.minHeight),
+						 calculatePosition(data.data[1].map(function (d) { return d3.sum(d); }), 0, me.options.height, me.options.buffMargin, me.options.minHeight)];
 
         vis.subBars = [[], []];
         vis.mainBars.forEach(function (pos, p) {
@@ -187,19 +201,19 @@
 
         //draw bar label
         mainbar.append('text').attr('class', 'barlabel')
-			.attr('x', me.options.labelColumn[p]).attr('y', function (d) { return d.middle + 5; })
+			.attr('x', me.options.header.labelPosition[p]).attr('y', function (d) { return d.middle + 5; })
 			.text(function (d, i) { return data.keys[p][i]; })
 			.attr('text-anchor', 'start');
 
         //draw count label
         mainbar.append('text').attr('class', 'barvalue')
-			.attr('x', me.options.valueColumn[p]).attr('y', function (d) { return d.middle + 5; })
+			.attr('x', me.options.header.valuePosition[p]).attr('y', function (d) { return d.middle + 5; })
 			.text(function (d, i) { return d.value; })
 			.attr('text-anchor', 'end');
 
         //draw percentage label
         mainbar.append('text').attr('class', 'barpercent')
-			.attr('x', me.options.barpercentColumn[p]).attr('y', function (d) { return d.middle + 5; })
+			.attr('x', me.options.header.barpercentColumn[p]).attr('y', function (d) { return d.middle + 5; })
 			.text(function (d, i) { return '(' + Math.round(100 * d.percent) + '%)'; })
 			.attr('text-anchor', 'end');
 
@@ -229,15 +243,15 @@
     // draws the headers on both sides with text
     function drawHeader(header, id) {
         d3.select('#' + id).append('g').attr('class', 'header').append('text').text(header[2])
-			.attr('x', me.options.headerPosition[0]).attr('y', me.options.headerPosition[1]);
+			.attr('x', me.options.header.position[0]).attr('y', me.options.header.position[1]);
 
         [0, 1].forEach(function (d) {
             var h = d3.select('#' + id).select('.part' + d).append('g').attr('class', 'header');
 
-            h.append('text').text(header[d]).attr('x', (me.options.labelColumn[d] - 5)).attr('y', -5);
-            h.append('text').text('Count').attr('x', (me.options.valueColumn[d] - 10)).attr('y', -5);
+            h.append('text').text(header[d]).attr('x', (me.options.header.labelPosition[d] - 5)).attr('y', -5);
+            h.append('text').text('Count').attr('x', (me.options.header.valuePosition[d] - 10)).attr('y', -5);
 
-            h.append('line').attr('x1', me.options.labelColumn[d] - 10).attr('y1', -2).attr('x2', me.options.barpercentColumn[d] + 10).attr('y2', -2)
+            h.append('line').attr('x1', me.options.header.labelPosition[d] - 10).attr('y1', -2).attr('x2', me.options.header.barpercentColumn[d] + 10).attr('y2', -2)
                 .attr('class', 'header-underscore');
         });
     }
