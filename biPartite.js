@@ -9,14 +9,13 @@
         labelColumn: [-130, 40], //Column positions of labels.
         valueColumn: [-50, 100],
         barpercentColumn: [-10, 160],// x distance from left of main rect
-        headerX: 108,
-        headerY: -20,
+        headerPosition: [108, -20],
         transitionWidth: 250,
         width: 1100,
         height: 610,
         sortbyKey: false,
         margin: { b: 0, t: 40, l: 170, r: 50 },
-        rectangleWidth : 80
+        rectangleWidth: 80
     };
 
     /**
@@ -24,7 +23,42 @@
      * @param {object} options an object containing options
      */
     bP.setOptions = function (options) {
-        me.options = options;
+        if (options === null || typeof options !== "object") {
+            throw "options is not an object";
+        }
+        if (options.colors instanceof Array) {
+            me.options.colors = options.colors;
+        }
+        if (options.labelColumn instanceof Array) {
+            me.options.labelColumn = options.labelColumn;
+        }
+        if (options.valueColumn instanceof Array) {
+            me.options.valueColumn = options.valueColumn;
+        }
+        if (options.barpercentColumn instanceof Array) {
+            me.options.barpercentColumn = options.barpercentColumn;
+        }
+        if (options.headerPosition instanceof Array) {
+            me.options.headerPosition = options.headerPosition;
+        }
+        if (typeof options.transitionWidth ==="number" ) {
+            me.options.transitionWidth = options.transitionWidth;
+        }
+        if (typeof options.width === "number") {
+            me.options.width = options.width;
+        }
+        if (typeof options.height === "number") {
+            me.options.height = options.height;
+        }
+        if (typeof options.sortbyKey === "boolean") {
+            me.options.sortbyKey = options.sortbyKey;
+        }
+        if (typeof options.margin === "object") {
+            me.options.margin = options.margin;
+        }
+        if (typeof options.rectangleWidth === "number") {
+            me.options.rectangleWidth = options.rectangleWidth;
+        }
     };
 
     /**
@@ -148,7 +182,7 @@
         mainbar.append('rect').attr('class', 'mainrect')
             // .attr('rx', 15)
             //.attr('ry', 15)
-            .attr('x', 0).attr('y', function(d) { return d.middle - d.height / 2; })
+            .attr('x', 0).attr('y', function (d) { return d.middle - d.height / 2; })
             .attr('width', me.options.rectangleWidth).attr('height', function (d) { return d.height; });
 
         //draw bar label
@@ -176,11 +210,11 @@
             //.attr('rx', 15)
             //.attr('ry', 15)
 			.attr('x', 0).attr('y', function (d) { return d.y; }).attr('width', me.options.rectangleWidth).attr('height', function (d) { return d.h; })
-			.style('fill', function(d) {
+			.style('fill', function (d) {
 			    var n = 1;
-            if (d === null || d.key1 == null)alert('sadfsdf');
+			    if (d === null || d.key1 == null) alert('sadfsdf');
 			    return me.options.colors[d.key1];
-        });
+			});
     }
 
     // draws the interconnecting lines between the left and right rectangles
@@ -195,7 +229,7 @@
     // draws the headers on both sides with text
     function drawHeader(header, id) {
         d3.select('#' + id).append('g').attr('class', 'header').append('text').text(header[2])
-			.attr('x', me.options.headerX).attr('y', me.options.headerY);
+			.attr('x', me.options.headerPosition[0]).attr('y', me.options.headerPosition[1]);
 
         [0, 1].forEach(function (d) {
             var h = d3.select('#' + id).select('.part' + d).append('g').attr('class', 'header');
@@ -230,7 +264,7 @@
     }
 
     function transitionEdges(data, id) {
-        d3.select('#' + id).append('g').attr('class', 'edges').attr('transform', 'translate(' + me.rectangleWidth + ',0)');
+        d3.select('#' + id).append('g').attr('class', 'edges').attr('transform', 'translate(' + me.options.rectangleWidth + ',0)');
 
         d3.select('#' + id).select('.edges').selectAll('.edge').data(data.edges)
 			.transition().duration(500)
