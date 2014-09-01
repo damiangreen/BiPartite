@@ -25,7 +25,7 @@
         minHeight: 14,
         rectangleMargin: 0,
         transitionOpacity: 0.5,
-        duration:500
+        duration: 500
     };
 
     /**
@@ -205,7 +205,7 @@
              .attr('class', 'subbars');
         el.append('g')
             .attr('class', 'mainbars');
-   
+
 
         var mainbar = biPartiteChart.selectMainBars(id, p)
                         .data(data.mainBars[p])
@@ -242,7 +242,7 @@
 			                  .attr('text-anchor', 'end');
 
         //draws the rectangle
-        biPartiteChart.selectSubBars(id, p)   
+        biPartiteChart.selectSubBars(id, p)
             .data(data.subBars[p])
             .enter()
 			.append('rect').attr('class', 'subbar')
@@ -252,8 +252,8 @@
                             .attr('height', function (d) { return d.h; })
 			                .style('fill', function (d) {
 			                    var n = 1;
-                           // console.log(d.key1);
-			                    if (d === null || d.key1 == null || d.key1>5) alert('sadfsdf');
+			                    // console.log(d.key1);
+			                    if (d === null || d.key1 == null || d.key1 > 5) alert('sadfsdf');
 			                    return me.options.colors[d.key1];
 			                });
     }
@@ -273,11 +273,11 @@
             .attr('class', 'edge')
 			.attr('points', edgePolygon)
             .style('fill', function (d) {
-                 return me.options.colors[d.key1];
-            }).style('opacity',me.options.transitionOpacity)
-			.each(function(d) {
-             this._current = d;
-        });
+                return me.options.colors[d.key1];
+            }).style('opacity', me.options.transitionOpacity)
+			.each(function (d) {
+			    this._current = d;
+			});
     }
 
     // draws the headers on both sides with text
@@ -319,7 +319,7 @@
     }
 
     function transitionPart(data, id, p) {
-        var mainbar = biPartiteChart.selectMainBars(id,p)
+        var mainbar = biPartiteChart.selectMainBars(id, p)
                                    .data(data.mainBars[p]);
 
         mainbar.select('.mainrect')
@@ -344,7 +344,7 @@
             .duration(me.options.duration)
 			.attr('y', function (d) { return d.middle + 5; })
 			.text(function (d, i) { return '(' + Math.round(100 * d.percent) + '%)'; });
-        biPartiteChart.selectSubBars(id,p)
+        biPartiteChart.selectSubBars(id, p)
                             .data(data.subBars[p])
 			                .transition()
                             .duration(me.options.duration)
@@ -357,7 +357,10 @@
                             .attr('class', 'edges')
                             .attr('transform', 'translate(' + me.options.rectangleWidth + ',0)');
 
-        d3.select('#' + id).select('.edges').selectAll('.edge').data(data.edges)
+        d3.select('#' + id)
+            .select('.edges')
+            .selectAll('.edge')
+            .data(data.edges)
 			.transition()
             .duration(me.options.duration)
 			.attrTween('points', arcTween)
@@ -374,7 +377,7 @@
         // creates root  svg element
         var svg = d3.select(containerEl)
            .append('svg')
-              .attr('class', 'bipartite')
+           .attr('class', 'bipartite')
            .attr('width', me.options.width)
            .attr('height', (me.options.height + me.options.margin.b + me.options.margin.t))
            .append('g')
@@ -384,7 +387,6 @@
             svg.append('g')
 				.attr('id', biP.id)
 				.attr('transform', 'translate(' + (550 * s) + ',0)');
-            debugger;
             var visData = visualize(biP.data);
             drawPart(visData, biP.id, 0);
             drawPart(visData, biP.id, 1);
@@ -401,12 +403,12 @@
 
     biPartiteChart.selectMainBars = function (id, m) {
         return d3.select('#' + id + ' .part' + m + ' .mainbars')
-            .selectAll('.mainbar');
+                 .selectAll('.mainbar');
     }
 
     biPartiteChart.selectSubBars = function (id, p) {
         return d3.select('#' + id + ' .part' + p + ' .subbars')
-            .selectAll('.subbar');
+                 .selectAll('.subbar');
     }
     biPartiteChart.selectSegment = function (data, m, s) {
         data.forEach(function (k) {
@@ -418,10 +420,11 @@
 
             transition(visualize(newdata), k.id);
 
-            var selectedBar =  biPartiteChart.selectMainBars (k.id,m)
+            var selectedBar = biPartiteChart.selectMainBars(k.id, m)
                 .filter(function (d, i) { return (i == s); });
 
-            selectedBar.selectAll('.mainrect, .barlabel, .barvalue, .barpercent').classed('selected', true);
+            selectedBar.selectAll('.mainrect, .barlabel, .barvalue, .barpercent')
+                       .classed('selected', true);
         });
     };
 
