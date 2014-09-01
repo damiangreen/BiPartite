@@ -206,42 +206,45 @@
         el.append('g')
             .attr('class', 'mainbars');
    
-  
 
-        var mainbar = d3.select('#' + id + ' .part' + p + ' .mainbars')
-            .selectAll('.mainbar')
-            .data(data.mainBars[p])
-			.enter()
-            .append('g')
-                .attr('class', 'mainbar');
+        var mainbar = biPartiteChart.selectMainBars(id, p)
+                        .data(data.mainBars[p])
+			            .enter()
+                        .append('g')
+                            .attr('class', 'mainbar');
 
         mainbar.append('rect').attr('class', 'mainrect')
             // .attr('rx', 15)
             //.attr('ry', 15)
             .attr('x', 0).attr('y', function (d) { return d.middle - d.height / 2; })
-            .attr('width', me.options.rectangleWidth).attr('height', function (d) { return d.height; });
+            .attr('width', me.options.rectangleWidth)
+            .attr('height', function (d) { return d.height; });
 
         //draw bar label
         mainbar.append('text').attr('class', 'barlabel')
-			                  .attr('x', me.options.header.labelPosition[p]).attr('y', function (d) { return d.middle + 5; })
+			                  .attr('x', me.options.header.labelPosition[p])
+                              .attr('y', function (d) { return d.middle + 5; })
 			                  .text(function (d, i) { return data.keys[p][i]; })
 			                  .attr('text-anchor', 'start');
 
         //draw count label
         mainbar.append('text').attr('class', 'barvalue')
-			                  .attr('x', me.options.header.valuePosition[p]).attr('y', function (d) { return d.middle + 5; })
+			                  .attr('x', me.options.header.valuePosition[p])
+                              .attr('y', function (d) { return d.middle + 5; })
 			                  .text(function (d) { return d.value; })
 			                  .attr('text-anchor', 'end');
 
         //draw percentage label
         mainbar.append('text').attr('class', 'barpercent')
-			                  .attr('x', me.options.header.barpercentColumn[p]).attr('y', function (d) { return d.middle + 5; })
+			                  .attr('x', me.options.header.barpercentColumn[p])
+                              .attr('y', function (d) { return d.middle + 5; })
 			                  .text(function (d) { return '(' + Math.round(100 * d.percent) + '%)'; })
 			                  .attr('text-anchor', 'end');
 
         //draws the rectangle
-        d3.select('#' + id + ' .part' + p + ' .subbars')
-			.selectAll('.subbar').data(data.subBars[p]).enter()
+        biPartiteChart.selectSubBars(id, p)   
+            .data(data.subBars[p])
+            .enter()
 			.append('rect').attr('class', 'subbar')
 			                .attr('x', 0)
                             .attr('y', function (d) { return d.y; })
@@ -257,28 +260,56 @@
 
     // draws the interconnecting lines between the left and right rectangles
     function drawEdges(data, id) {
-        d3.select('#' + id).append('g').attr('class', 'edges').attr('transform', 'translate(' + me.options.rectangleWidth + ',0)');
+        d3.select('#' + id)
+            .append('g')
+            .attr('class', 'edges')
+            .attr('transform', 'translate(' + me.options.rectangleWidth + ',0)');
 
-        d3.select('#' + id).select('.edges').selectAll('.edge').data(data.edges).enter().append('polygon').attr('class', 'edge')
-			.attr('points', edgePolygon).style('fill', function (d) {
-			    console.log(d.key1);
+        d3.select('#' + id + ' .edges')
+            .selectAll('.edge')
+            .data(data.edges)
+            .enter()
+            .append('polygon')
+            .attr('class', 'edge')
+			.attr('points', edgePolygon)
+            .style('fill', function (d) {
                  return me.options.colors[d.key1];
             }).style('opacity',me.options.transitionOpacity)
-			.each(function (d) { this._current = d; });
+			.each(function(d) {
+             this._current = d;
+        });
     }
 
     // draws the headers on both sides with text
     function drawHeader(header, id) {
-        d3.select('#' + id).append('g').attr('class', 'header').append('text').text(header[2])
-			.attr('x', me.options.header.position[0]).attr('y', me.options.header.position[1]);
+        d3.select('#' + id)
+            .append('g')
+            .attr('class', 'header')
+            .append('text')
+            .text(header[2])
+			.attr('x', me.options.header.position[0])
+            .attr('y', me.options.header.position[1]);
 
         [0, 1].forEach(function (d) {
-            var h = d3.select('#' + id).select('.part' + d).append('g').attr('class', 'header');
+            var h = d3.select('#' + id + ' .part' + d)
+                .append('g')
+                .attr('class', 'header');
 
-            h.append('text').text(header[d]).attr('x', (me.options.header.labelPosition[d] - 5)).attr('y', -5);
-            h.append('text').text('Count').attr('x', (me.options.header.valuePosition[d] - 10)).attr('y', -5);
+            h.append('text')
+                .text(header[d])
+                .attr('x', (me.options.header.labelPosition[d] - 5))
+                .attr('y', -5);
 
-            h.append('line').attr('x1', me.options.header.labelPosition[d] - 10).attr('y1', -2).attr('x2', me.options.header.barpercentColumn[d] + 10).attr('y2', -2)
+            h.append('text')
+                .text('Count')
+                .attr('x', (me.options.header.valuePosition[d] - 10))
+                .attr('y', -5);
+
+            h.append('line')
+                .attr('x1', me.options.header.labelPosition[d] - 10)
+                .attr('y1', -2)
+                .attr('x2', me.options.header.barpercentColumn[d] + 10)
+                .attr('y2', -2)
                 .attr('class', 'header-underscore');
         });
     }
@@ -288,28 +319,32 @@
     }
 
     function transitionPart(data, id, p) {
-        var mainbar = d3.select('#' + id).select('.part' + p).select('.mainbars').selectAll('.mainbar').data(data.mainBars[p]);
+        var mainbar = biPartiteChart.selectMainBars(id,p)
+                                   .data(data.mainBars[p]);
 
-        mainbar.select('.mainrect').transition().duration(me.options.duration)
+        mainbar.select('.mainrect')
+            .transition()
+            .duration(me.options.duration)
 			.attr('y', function (d) { return d.middle - d.height / 2; })
             .attr('height', function (d) { return d.height; });
 
-        mainbar.select('.barlabel').transition()
+        mainbar.select('.barlabel')
+            .transition()
             .duration(me.options.duration)
             .attr('y', function (d) { return d.middle + 5; });
 
         mainbar.select('.barvalue')
             .transition()
             .duration(me.options.duration)
-            .attr('y', function (d) { return d.middle + 5; }).text(function (d, i) { return d.value; });
+            .attr('y', function (d) { return d.middle + 5; })
+            .text(function (d, i) { return d.value; });
 
-        mainbar.select('.barpercent').transition().duration(me.options.duration)
+        mainbar.select('.barpercent')
+            .transition()
+            .duration(me.options.duration)
 			.attr('y', function (d) { return d.middle + 5; })
 			.text(function (d, i) { return '(' + Math.round(100 * d.percent) + '%)'; });
-
-        d3.select('#' + id).select('.part' + p)
-                            .select('.subbars')
-                            .selectAll('.subbar')
+        biPartiteChart.selectSubBars(id,p)
                             .data(data.subBars[p])
 			                .transition()
                             .duration(me.options.duration)
@@ -323,8 +358,10 @@
                             .attr('transform', 'translate(' + me.options.rectangleWidth + ',0)');
 
         d3.select('#' + id).select('.edges').selectAll('.edge').data(data.edges)
-			.transition().duration(me.options.duration)
-			.attrTween('points', arcTween).style('opacity', function (d) { return (d.h1 == 0 || d.h2 == 0 ? 0 : 0.5); });
+			.transition()
+            .duration(me.options.duration)
+			.attrTween('points', arcTween)
+            .style('opacity', function (d) { return (d.h1 == 0 || d.h2 == 0 ? 0 : 0.5); });
     }
 
     function transition(data, id) {
@@ -355,16 +392,22 @@
             drawHeader(biP.header, biP.id);
 
             [0, 1].forEach(function (p) {
-                d3.select('#' + biP.id)
-					.select('.part' + p)
-					.select('.mainbars')
-					.selectAll('.mainbar')
+                biPartiteChart.selectMainBars(biP.id, p)
 					.on('mouseover', function (d, i) { return biPartiteChart.selectSegment(data, p, i); })
 					.on('mouseout', function (d, i) { return biPartiteChart.deSelectSegment(data, p, i); });
             });
         });
     };
 
+    biPartiteChart.selectMainBars = function (id, m) {
+        return d3.select('#' + id + ' .part' + m + ' .mainbars')
+            .selectAll('.mainbar');
+    }
+
+    biPartiteChart.selectSubBars = function (id, p) {
+        return d3.select('#' + id + ' .part' + p + ' .subbars')
+            .selectAll('.subbar');
+    }
     biPartiteChart.selectSegment = function (data, m, s) {
         data.forEach(function (k) {
             var newdata = { keys: [], data: [] };
@@ -375,10 +418,7 @@
 
             transition(visualize(newdata), k.id);
 
-            var selectedBar = d3.select('#' + k.id)
-                .select('.part' + m)
-                .select('.mainbars')
-                .selectAll('.mainbar')
+            var selectedBar =  biPartiteChart.selectMainBars (k.id,m)
                 .filter(function (d, i) { return (i == s); });
 
             selectedBar.selectAll('.mainrect, .barlabel, .barvalue, .barpercent').classed('selected', true);
@@ -388,13 +428,10 @@
     biPartiteChart.deSelectSegment = function (data, m, s) {
         data.forEach(function (k) {
             transition(visualize(k.data), k.id);
-            var selectedBar = d3.select('#' + k.id)
-                                .select('.part' + m)
-                                .select('.mainbars')
-                                .selectAll('.mainbar')
-                                .filter(function (d, i) { return (i == s); });
+            var selectedBar = biPartiteChart.selectMainBars(k.id, m)
+                                            .filter(function (d, i) { return (i == s); });
             selectedBar.selectAll('.mainrect, .barlabel, .barvalue, .barpercent')
-                      .classed('selected', false);
+                       .classed('selected', false);
         });
     };
     this.biPartiteChart = biPartiteChart;
