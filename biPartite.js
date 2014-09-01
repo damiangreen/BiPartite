@@ -211,7 +211,17 @@
                         .data(data.mainBars[p])
 			            .enter()
                         .append('g')
-                            .attr('class', 'mainbar');
+                        .attr('class', 'mainbar');
+        if (p === 1) {
+      
+        mainbar.append('rect').attr('class', 'mainrect-container')
+          // .attr('rx', 15)
+          //.attr('ry', 15)
+          .attr('x', me.options.rectangleWidth)
+          .attr('y', function (d) { return d.middle - d.height / 2; })
+          .attr('width', me.options.header.barpercentColumn[p]- me.options.rectangleWidth +10)
+          .attr('height', function (d) { return d.height; });
+        }
 
         mainbar.append('rect').attr('class', 'mainrect')
             // .attr('rx', 15)
@@ -423,7 +433,7 @@
             var selectedBar = biPartiteChart.selectMainBars(k.id, m)
                 .filter(function (d, i) { return (i == s); });
 
-            selectedBar.selectAll('.mainrect, .barlabel, .barvalue, .barpercent')
+            selectedBar//.selectAll('.mainrect, .barlabel, .barvalue, .barpercent')
                        .classed('selected', true);
         });
     };
@@ -433,7 +443,7 @@
             transition(visualize(k.data), k.id);
             var selectedBar = biPartiteChart.selectMainBars(k.id, m)
                                             .filter(function (d, i) { return (i == s); });
-            selectedBar.selectAll('.mainrect, .barlabel, .barvalue, .barpercent')
+            selectedBar//.selectAll('.mainrect, .barlabel, .barvalue, .barpercent')
                        .classed('selected', false);
         });
     };

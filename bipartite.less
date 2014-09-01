@@ -1,6 +1,6 @@
 ﻿.bipartite {
-     text {
-       font-size: 12px;
+    text {
+        font-size: 12px;
     }
 
     rect {
@@ -8,40 +8,51 @@
     }
 
     .subbar {
-        fill: pink;
+        /*fill: pink;*/
     }
 
-    .mainrect {
-        
-    stroke-width: 1;
-    stroke: gainsboro;
-  /*  stroke-opacity: 0;
+    .mainbar {
+        .mainrect-container {
+            fill: pink;
+        }
+
+        &.selected {
+            .mainrect-container {
+                fill: firebrick;
+             
+            }
+
+            text {
+                font-weight: bold;      fill: white;
+            }
+        }
+
+
+        .mainrect {
+            stroke-width: 1;
+            stroke: gainsboro;
+            /*  stroke-opacity: 0;
     shape-rendering: auto;*/
-        fill: gainsboro;
-        fill-opacity: 0;
-        
+            fill: gainsboro;
+            fill-opacity: 0;
+        }
+
+        .mainrect.selected {
+            stroke-opacity: 1;
+        }
+
+        .barlabel, .barvalue, .barpercent {
+            font-weight: normal;
+        }
     }
 
-    .mainrect.selected {
-        stroke-opacity: 1;
-    }
-
-    .barlabel, .barvalue, .barpercent {
-        font-weight: normal;
-    }
 
     .barpercent {
-        fill: grey;
+        /*fill: grey;*/
     }
 
-    .barlabel.selected,
-    .barvalue.selected,
-    .barpercent.selected {
-        font-weight: bold;
-    }
 
     .header {
-      
         text-anchor: middle;
         font-weight: bold;
 
