@@ -23,7 +23,7 @@
         },
         rectangleWidth: 80,
         minHeight: 14,
-        rectangleMargin: 2,
+        rectangleMargin: 0,
         transitionOpacity: 0.5,
         duration:500
     };
@@ -200,13 +200,20 @@
         d3.select('#' + id).append('g')
                             .attr('class', 'part' + p)
                             .attr('transform', 'translate(' + (p * (me.options.transitionWidth + me.options.rectangleWidth)) + ',0)');
-        var el = d3.select('#' + id).select('.part' + p);
-        el.append('g').attr('class', 'mainbars');
-        el.append('g').attr('class', 'subbars');
+        var el = d3.select('#' + id + ' .part' + p);
+        el.append('g')
+             .attr('class', 'subbars');
+        el.append('g')
+            .attr('class', 'mainbars');
+   
   
 
-        var mainbar = d3.select('#' + id).select('.part' + p).select('.mainbars').selectAll('.mainbar').data(data.mainBars[p])
-			.enter().append('g').attr('class', 'mainbar');
+        var mainbar = d3.select('#' + id + ' .part' + p + ' .mainbars')
+            .selectAll('.mainbar')
+            .data(data.mainBars[p])
+			.enter()
+            .append('g')
+                .attr('class', 'mainbar');
 
         mainbar.append('rect').attr('class', 'mainrect')
             // .attr('rx', 15)
@@ -233,9 +240,7 @@
 			                  .attr('text-anchor', 'end');
 
         //draws the rectangle
-        d3.select('#' + id)
-            .select('.part' + p)
-            .select('.subbars')
+        d3.select('#' + id + ' .part' + p + ' .subbars')
 			.selectAll('.subbar').data(data.subBars[p]).enter()
 			.append('rect').attr('class', 'subbar')
 			                .attr('x', 0)
@@ -286,21 +291,36 @@
         var mainbar = d3.select('#' + id).select('.part' + p).select('.mainbars').selectAll('.mainbar').data(data.mainBars[p]);
 
         mainbar.select('.mainrect').transition().duration(me.options.duration)
-			.attr('y', function (d) { return d.middle - d.height / 2; }).attr('height', function (d) { return d.height; });
+			.attr('y', function (d) { return d.middle - d.height / 2; })
+            .attr('height', function (d) { return d.height; });
 
-        mainbar.select('.barlabel').transition().duration(me.options.duration).attr('y', function (d) { return d.middle + 5; });
-        mainbar.select('.barvalue').transition().duration(me.options.duration).attr('y', function (d) { return d.middle + 5; }).text(function (d, i) { return d.value; });
+        mainbar.select('.barlabel').transition()
+            .duration(me.options.duration)
+            .attr('y', function (d) { return d.middle + 5; });
+
+        mainbar.select('.barvalue')
+            .transition()
+            .duration(me.options.duration)
+            .attr('y', function (d) { return d.middle + 5; }).text(function (d, i) { return d.value; });
+
         mainbar.select('.barpercent').transition().duration(me.options.duration)
 			.attr('y', function (d) { return d.middle + 5; })
 			.text(function (d, i) { return '(' + Math.round(100 * d.percent) + '%)'; });
 
-        d3.select('#' + id).select('.part' + p).select('.subbars').selectAll('.subbar').data(data.subBars[p])
-			.transition().duration(me.options.duration)
-			.attr('y', function (d) { return d.y; }).attr('height', function (d) { return d.h; });
+        d3.select('#' + id).select('.part' + p)
+                            .select('.subbars')
+                            .selectAll('.subbar')
+                            .data(data.subBars[p])
+			                .transition()
+                            .duration(me.options.duration)
+			                .attr('y', function (d) { return d.y; })
+                            .attr('height', function (d) { return d.h; });
     }
 
     function transitionEdges(data, id) {
-        d3.select('#' + id).append('g').attr('class', 'edges').attr('transform', 'translate(' + me.options.rectangleWidth + ',0)');
+        d3.select('#' + id).append('g')
+                            .attr('class', 'edges')
+                            .attr('transform', 'translate(' + me.options.rectangleWidth + ',0)');
 
         d3.select('#' + id).select('.edges').selectAll('.edge').data(data.edges)
 			.transition().duration(me.options.duration)
@@ -355,7 +375,11 @@
 
             transition(visualize(newdata), k.id);
 
-            var selectedBar = d3.select('#' + k.id).select('.part' + m).select('.mainbars').selectAll('.mainbar').filter(function (d, i) { return (i == s); });
+            var selectedBar = d3.select('#' + k.id)
+                .select('.part' + m)
+                .select('.mainbars')
+                .selectAll('.mainbar')
+                .filter(function (d, i) { return (i == s); });
 
             selectedBar.selectAll('.mainrect, .barlabel, .barvalue, .barpercent').classed('selected', true);
         });
@@ -364,8 +388,13 @@
     biPartiteChart.deSelectSegment = function (data, m, s) {
         data.forEach(function (k) {
             transition(visualize(k.data), k.id);
-            var selectedBar = d3.select('#' + k.id).select('.part' + m).select('.mainbars').selectAll('.mainbar').filter(function (d, i) { return (i == s); });
-            selectedBar.selectAll('.mainrect, .barlabel, .barvalue, .barpercent').classed('selected', false);
+            var selectedBar = d3.select('#' + k.id)
+                                .select('.part' + m)
+                                .select('.mainbars')
+                                .selectAll('.mainbar')
+                                .filter(function (d, i) { return (i == s); });
+            selectedBar.selectAll('.mainrect, .barlabel, .barvalue, .barpercent')
+                      .classed('selected', false);
         });
     };
     this.biPartiteChart = biPartiteChart;
